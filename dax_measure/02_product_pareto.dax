@@ -1,0 +1,153 @@
+// ======================================================================
+// Product page: basket, price per unit, Pareto by SKU, profit share, MoM
+// Project  : Sales Performance Dashboard (Power BI)
+// Table    : _Measures
+// Notes    : Pareto: rank SKUs by revenue, accumulate, divide by grand total.
+// Usage    : Power BI Desktop > Modeling > New measure (paste one measure at a time),
+//            or load the whole file with Tabular Editor / DAX Studio.
+// ======================================================================
+
+// ----------------------------------------------------------------------
+// Measure : Basket Size
+// Folder  : 02 Product Performance
+// ----------------------------------------------------------------------
+Basket Size =
+    DIVIDE([Total Units Sold], [Total Orders])
+
+// ----------------------------------------------------------------------
+// Measure : Avg Revenue per Unit
+// Folder  : 02 Product Performance
+// ----------------------------------------------------------------------
+Avg Revenue per Unit =
+    DIVIDE([Total Revenue], [Total Units Sold])
+
+// ----------------------------------------------------------------------
+// Measure : Avg Order Value
+// Folder  : 02 Product Performance
+// ----------------------------------------------------------------------
+Avg Order Value =
+    DIVIDE([Total Revenue], [Total Orders])
+
+// ----------------------------------------------------------------------
+// Measure : SKU Revenue Rank
+// Folder  : 02 Product Performance\Pareto
+// ----------------------------------------------------------------------
+SKU Revenue Rank =
+    RANKX(ALL(dim_product[SKU]), CALCULATE([Total Revenue]),, DESC, Dense)
+
+// ----------------------------------------------------------------------
+// Measure : Cumulative Revenue (Pareto)
+// Folder  : 02 Product Performance\Pareto
+// ----------------------------------------------------------------------
+Cumulative Revenue (Pareto) =
+    VAR CurrentRank = [SKU Revenue Rank]
+    RETURN
+        CALCULATE(
+            [Total Revenue],
+            FILTER( ALL( dim_product[SKU] ), [SKU Revenue Rank] <= CurrentRank )
+        )
+
+// ----------------------------------------------------------------------
+// Measure : Cumulative Revenue % (Pareto)
+// Folder  : 02 Product Performance\Pareto
+// ----------------------------------------------------------------------
+Cumulative Revenue % (Pareto) =
+    DIVIDE([Cumulative Revenue (Pareto)], CALCULATE([Total Revenue], ALL(dim_product[SKU])))
+
+// ----------------------------------------------------------------------
+// Measure : Profit Distribution %
+// Folder  : 02 Product Performance
+// Purpose  : Each month's share of total profit across the whole date range
+// ----------------------------------------------------------------------
+Profit Distribution % =
+    DIVIDE([Total Profit], CALCULATE([Total Profit], ALL(dim_date)))
+
+// ----------------------------------------------------------------------
+// Measure : Profit Distribution % (Product)
+// Folder  : 02 Product Performance\Pareto
+// Purpose  : Share of total profit contributed by the Category/Sub-Category/Product currently in context. Denominator removes all filters from dim_product, so it stays 100% at grand total and shows each product-dimension slice's % contribution when broken down by Category, Sub-Category, or Product.
+// NOTE: the original description mentions Category / Sub-Category / Product; in this model the product attributes are ProductType / SKU / ProductName.
+// ----------------------------------------------------------------------
+Profit Distribution % (Product) =
+    DIVIDE(
+        [Total Profit],
+        CALCULATE([Total Profit], ALL(dim_product))
+    )
+
+// ----------------------------------------------------------------------
+// Measure : Units Sold PM
+// Folder  : 02 Product Performance\MoM
+// ----------------------------------------------------------------------
+Units Sold PM =
+    CALCULATE([Total Units Sold], DATEADD(dim_date[Date], -1, MONTH))
+
+// ----------------------------------------------------------------------
+// Measure : Units Sold MoM %
+// Folder  : 02 Product Performance\MoM
+// ----------------------------------------------------------------------
+Units Sold MoM % =
+    VAR _CM = [Total Units Sold]
+    VAR _PM = CALCULATE(
+        [Total Units Sold], DATEADD(dim_date[Date], -1, MONTH)
+    )
+    VAR _perc = DIVIDE(_CM - _PM, _PM)
+    VAR _format = SWITCH(
+        TRUE(),
+        _perc > 0, UNICHAR(11165) & " " & FORMAT(_perc, "0.0%"),
+        _perc < 0, UNICHAR(11167) & " " & FORMAT(_perc*-1, "0.0%"),
+        FORMAT(_perc, "0.0%")
+    )
+    RETURN
+    _format
+
+// ----------------------------------------------------------------------
+// Measure : Avg Revenue per Unit PM
+// Folder  : 02 Product Performance\MoM
+// ----------------------------------------------------------------------
+Avg Revenue per Unit PM =
+    CALCULATE([Avg Revenue per Unit], DATEADD(dim_date[Date], -1, MONTH))
+
+// ----------------------------------------------------------------------
+// Measure : Avg Revenue per Unit MoM %
+// Folder  : 02 Product Performance\MoM
+// ----------------------------------------------------------------------
+Avg Revenue per Unit MoM % =
+    VAR _CM = [Avg Revenue per Unit]
+    VAR _PM = CALCULATE(
+        [Avg Revenue per Unit], DATEADD(dim_date[Date], -1, MONTH)
+    )
+    VAR _perc = DIVIDE(_CM - _PM, _PM)
+    VAR _format = SWITCH(
+        TRUE(),
+        _perc > 0, UNICHAR(11165) & " " & FORMAT(_perc, "0.0%"),
+        _perc < 0, UNICHAR(11167) & " " & FORMAT(_perc*-1, "0.0%"),
+        FORMAT(_perc, "0.0%")
+    )
+    RETURN
+    _format
+
+// ----------------------------------------------------------------------
+// Measure : Basket Size PM
+// Folder  : 02 Product Performance\MoM
+// ----------------------------------------------------------------------
+Basket Size PM =
+    CALCULATE([Basket Size], DATEADD(dim_date[Date], -1, MONTH))
+
+// ----------------------------------------------------------------------
+// Measure : Basket Size MoM %
+// Folder  : 02 Product Performance\MoM
+// ----------------------------------------------------------------------
+Basket Size MoM % =
+    VAR _CM = [Basket Size]
+    VAR _PM = CALCULATE(
+        [Basket Size], DATEADD(dim_date[Date], -1, MONTH)
+    )
+    VAR _perc = DIVIDE(_CM - _PM, _PM)
+    VAR _format = SWITCH(
+        TRUE(),
+        _perc > 0, UNICHAR(11165) & " " & FORMAT(_perc, "0.0%"),
+        _perc < 0, UNICHAR(11167) & " " & FORMAT(_perc*-1, "0.0%"),
+        FORMAT(_perc, "0.0%")
+    )
+    RETURN
+    _format

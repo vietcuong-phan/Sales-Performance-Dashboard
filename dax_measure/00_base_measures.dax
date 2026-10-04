@@ -1,0 +1,95 @@
+// ======================================================================
+// Base measures (display folder: 00 Base Measures)
+// Project  : Sales Performance Dashboard (Power BI)
+// Table    : _Measures
+// Notes    : Foundation for every other measure: counts, revenue/cost/profit, margin, units, rating, customers.
+// Usage    : Power BI Desktop > Modeling > New measure (paste one measure at a time),
+//            or load the whole file with Tabular Editor / DAX Studio.
+// ======================================================================
+
+// ----------------------------------------------------------------------
+// Measure : Total Orders
+// Folder  : 00 Base Measures
+// Purpose  : Distinct count of orders (grain of fact_sales)
+// ----------------------------------------------------------------------
+Total Orders =
+    DISTINCTCOUNT(fact_sales[OrderID])
+
+// ----------------------------------------------------------------------
+// Measure : Completed Orders
+// Folder  : 00 Base Measures
+// ----------------------------------------------------------------------
+Completed Orders =
+    CALCULATE([Total Orders], fact_sales[OrderStatus] = "Completed")
+
+// ----------------------------------------------------------------------
+// Measure : Cancelled Orders
+// Folder  : 00 Base Measures
+// ----------------------------------------------------------------------
+Cancelled Orders =
+    CALCULATE([Total Orders], fact_sales[OrderStatus] = "Cancelled")
+
+// ----------------------------------------------------------------------
+// Measure : Completed Rate
+// Folder  : 00 Base Measures
+// ----------------------------------------------------------------------
+Completed Rate =
+    DIVIDE([Completed Orders], [Total Orders])
+
+// ----------------------------------------------------------------------
+// Measure : Cancellation Rate
+// Folder  : 00 Base Measures
+// ----------------------------------------------------------------------
+Cancellation Rate =
+    DIVIDE([Cancelled Orders], [Total Orders])
+
+// ----------------------------------------------------------------------
+// Measure : Total Revenue
+// Folder  : 00 Base Measures
+// NOTE: includes Cancelled orders. Completed-only revenue would need CALCULATE(..., fact_sales[OrderStatus] = "Completed").
+// ----------------------------------------------------------------------
+Total Revenue =
+    SUM(fact_sales[Revenue])
+
+// ----------------------------------------------------------------------
+// Measure : Total Cost
+// Folder  : 00 Base Measures
+// ----------------------------------------------------------------------
+Total Cost =
+    SUM(fact_sales[Cost])
+
+// ----------------------------------------------------------------------
+// Measure : Total Profit
+// Folder  : 00 Base Measures
+// ----------------------------------------------------------------------
+Total Profit =
+    SUM(fact_sales[Profit])
+
+// ----------------------------------------------------------------------
+// Measure : Profit Margin %
+// Folder  : 00 Base Measures
+// ----------------------------------------------------------------------
+Profit Margin % =
+    DIVIDE([Total Profit], [Total Revenue])
+
+// ----------------------------------------------------------------------
+// Measure : Total Units Sold
+// Folder  : 00 Base Measures
+// ----------------------------------------------------------------------
+Total Units Sold =
+    SUM(fact_sales[Quantity])
+
+// ----------------------------------------------------------------------
+// Measure : Average Rating
+// Folder  : 00 Base Measures
+// Purpose  : Only Completed orders carry a rating
+// ----------------------------------------------------------------------
+Average Rating =
+    CALCULATE(AVERAGE(fact_sales[Rating]), fact_sales[OrderStatus] = "Completed")
+
+// ----------------------------------------------------------------------
+// Measure : Total Customers
+// Folder  : 00 Base Measures
+// ----------------------------------------------------------------------
+Total Customers =
+    DISTINCTCOUNT(fact_sales[CustomerID])

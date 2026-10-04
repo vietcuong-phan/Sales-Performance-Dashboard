@@ -1,0 +1,210 @@
+// ======================================================================
+// Customer page: revenue per customer, frequency, repeat/active rate, MoM, cohort retention
+// Project  : Sales Performance Dashboard (Power BI)
+// Table    : _Measures
+// Notes    : Cohort Retention % needs the disconnected table 'Month Index' (0..12) and calculated columns dim_customer[FirstOrderDate] / [FirstOrderMonth].
+// Usage    : Power BI Desktop > Modeling > New measure (paste one measure at a time),
+//            or load the whole file with Tabular Editor / DAX Studio.
+// ======================================================================
+
+// ----------------------------------------------------------------------
+// Measure : Revenue per Customer
+// Folder  : 03 Customer
+// ----------------------------------------------------------------------
+Revenue per Customer =
+    DIVIDE([Total Revenue], [Total Customers])
+
+// ----------------------------------------------------------------------
+// Measure : Frequency
+// Folder  : 03 Customer
+// ----------------------------------------------------------------------
+Frequency =
+    DIVIDE([Total Orders], [Total Customers])
+
+// ----------------------------------------------------------------------
+// Measure : Repeat Customers
+// Folder  : 03 Customer
+// ----------------------------------------------------------------------
+Repeat Customers =
+    COUNTROWS(FILTER(VALUES(fact_sales[CustomerID]), CALCULATE([Total Orders]) > 1))
+
+// ----------------------------------------------------------------------
+// Measure : Repeat Customer Rate
+// Folder  : 03 Customer
+// ----------------------------------------------------------------------
+Repeat Customer Rate =
+    DIVIDE([Repeat Customers], [Total Customers])
+
+// ----------------------------------------------------------------------
+// Measure : Active Customer Rate
+// Folder  : 03 Customer
+// Purpose  : Share of the (attribute-filtered) customer base that has an order in the current context. =1.00 at full range by construction.
+// NOTE: equals 100% over the full date range by construction (every customer in dim_customer has at least one order); it is only informative inside a month / slicer context.
+// ----------------------------------------------------------------------
+Active Customer Rate =
+    DIVIDE([Total Customers], DISTINCTCOUNT(dim_customer[CustomerID]))
+
+// ----------------------------------------------------------------------
+// Measure : Customers PM
+// Folder  : 03 Customer\MoM
+// ----------------------------------------------------------------------
+Customers PM =
+    CALCULATE([Total Customers], DATEADD(dim_date[Date], -1, MONTH))
+
+// ----------------------------------------------------------------------
+// Measure : Customers MoM %
+// Folder  : 03 Customer\MoM
+// ----------------------------------------------------------------------
+Customers MoM % =
+    VAR _CM = [Total Customers]
+    VAR _PM = CALCULATE(
+        [Total Customers], DATEADD(dim_date[Date], -1, MONTH)
+    )
+    VAR _perc = DIVIDE(_CM - _PM, _PM)
+    VAR _format = SWITCH(
+        TRUE(),
+        _perc > 0, UNICHAR(11165) & " " & FORMAT(_perc, "0.0%"),
+        _perc < 0, UNICHAR(11167) & " " & FORMAT(_perc*-1, "0.0%"),
+        FORMAT(_perc, "0.0%")
+    )
+    RETURN
+    _format
+
+// ----------------------------------------------------------------------
+// Measure : Revenue per Customer PM
+// Folder  : 03 Customer\MoM
+// ----------------------------------------------------------------------
+Revenue per Customer PM =
+    CALCULATE([Revenue per Customer], DATEADD(dim_date[Date], -1, MONTH))
+
+// ----------------------------------------------------------------------
+// Measure : Revenue per Customer MoM %
+// Folder  : 03 Customer\MoM
+// ----------------------------------------------------------------------
+Revenue per Customer MoM % =
+    VAR cm = [Revenue per Customer]
+    VAR pm = CALCULATE(
+        cm,
+        DATEADD(dim_date[Date], -1, MONTH)
+    )
+    VAR _perc = DIVIDE(cm - pm, pm)
+    VAR _format = SWITCH(
+        TRUE(),
+        _perc > 0, UNICHAR(11165) & " " & FORMAT(_perc, "0.0%"),
+        _perc < 0, UNICHAR(11167) & " " & FORMAT(_perc*-1, "0.0%"),
+        FORMAT(_perc, "0.0%")
+    )
+    RETURN
+    _format
+
+// ----------------------------------------------------------------------
+// Measure : Frequency PM
+// Folder  : 03 Customer\MoM
+// ----------------------------------------------------------------------
+Frequency PM =
+    CALCULATE([Frequency], DATEADD(dim_date[Date], -1, MONTH))
+
+// ----------------------------------------------------------------------
+// Measure : Frequency MoM %
+// Folder  : 03 Customer\MoM
+// KNOWN ISSUE: the negative branch is missing '* -1', so a decline renders as 'down-arrow -x%' (double negative sign).
+// Suggested fix: FORMAT(perc * -1, "0.0%") in the perc < 0 branch, as in the other MoM measures.
+// ----------------------------------------------------------------------
+Frequency MoM % =
+    VAR CM = [Frequency]
+    VAR PM = CALCULATE(
+        [Frequency],
+        DATEADD(dim_date[Date], -1, MONTH)
+    )
+    VAR perc = DIVIDE(CM - PM, PM)
+    VAR _format = SWITCH(
+        TRUE(),
+        perc > 0, UNICHAR(11165) & " " & FORMAT(perc, "0.0%"),
+        perc < 0, UNICHAR(11167) & " " & FORMAT(perc, "0.0%"),
+        FORMAT(perc, "0.0%")
+    )
+    RETURN
+    _format
+
+// ----------------------------------------------------------------------
+// Measure : Repeat Customer Rate PM
+// Folder  : 03 Customer\MoM
+// ----------------------------------------------------------------------
+Repeat Customer Rate PM =
+    CALCULATE([Repeat Customer Rate], DATEADD(dim_date[Date], -1, MONTH))
+
+// ----------------------------------------------------------------------
+// Measure : Repeat Customer MoM %
+// Folder  : 03 Customer\MoM
+// Purpose  : Percentage-point change vs previous month
+// KNOWN ISSUE: description says 'percentage-point change' but the formula is the relative % change of [Repeat Customers] (a count), not of [Repeat Customer Rate].
+// [Repeat Customer Rate PM] exists but is not used here.
+// ----------------------------------------------------------------------
+Repeat Customer MoM % =
+    VAR _CM = [Repeat Customers]
+    VAR _PM = CALCULATE(
+        [Repeat Customers], DATEADD(dim_date[Date], -1, MONTH)
+    )
+    VAR _perc = DIVIDE(_CM - _PM, _PM)
+    VAR _format = SWITCH(
+        TRUE(),
+        _perc > 0, UNICHAR(11165) & " " & FORMAT(_perc, "0.0%"),
+        _perc < 0, UNICHAR(11167) & " " & FORMAT(_perc*-1, "0.0%"),
+        FORMAT(_perc, "0.0%")
+    )
+    RETURN
+    _format
+
+// ----------------------------------------------------------------------
+// Measure : Active Customer Rate PM
+// Folder  : 03 Customer\MoM
+// ----------------------------------------------------------------------
+Active Customer Rate PM =
+    CALCULATE([Active Customer Rate], DATEADD(dim_date[Date], -1, MONTH))
+
+// ----------------------------------------------------------------------
+// Measure : Active Customer Rate MoM %
+// Folder  : 03 Customer\MoM
+// Purpose  : Percentage-point change vs previous month
+// KNOWN ISSUE: description says 'percentage-point change' but the formula returns a relative % change.
+// ----------------------------------------------------------------------
+Active Customer Rate MoM % =
+    VAR _CM = [Active Customer Rate]
+    VAR _PM = CALCULATE(
+        [Active Customer Rate], DATEADD(dim_date[Date], -1, MONTH)
+    )
+    VAR _perc = DIVIDE(_CM - _PM, _PM)
+    VAR _format = SWITCH(
+        TRUE(),
+        _perc > 0, UNICHAR(11165) & " " & FORMAT(_perc, "0.0%"),
+        _perc < 0, UNICHAR(11167) & " " & FORMAT(_perc*-1, "0.0%"),
+        FORMAT(_perc, "0.0%")
+    )
+    RETURN
+    _format
+
+// ----------------------------------------------------------------------
+// Measure : Cohort Retention %
+// Folder  : 03 Customer\Cohort
+// Purpose  : Cohort retention: for the cohort in Rows (customer's FirstOrderMonth) and the month offset in Columns ('Month Index' disconnected table), % of that cohort's customers who placed an order in (cohort month + offset). Use dim_customer[FirstOrderMonth] on Rows and 'Month Index'[Month Index] on Columns of a Matrix.
+// ----------------------------------------------------------------------
+Cohort Retention % =
+    VAR SelIndex = SELECTEDVALUE('Month Index'[Month Index])
+    VAR CohortMinDate = CALCULATE(MIN(dim_customer[FirstOrderDate]))
+    VAR CohortMonthStart = DATE(YEAR(CohortMinDate), MONTH(CohortMinDate), 1)
+    VAR CohortSize = CALCULATE(DISTINCTCOUNT(dim_customer[CustomerID]))
+    VAR TargetMonthStart = EDATE(CohortMonthStart, SelIndex)
+    VAR TargetMonthEnd = EDATE(CohortMonthStart, SelIndex + 1)
+    VAR MaxDataDate = CALCULATE(MAX(fact_sales[OrderDate]), ALL(fact_sales))
+    VAR ActiveInTargetMonth =
+        CALCULATE(
+            DISTINCTCOUNT(fact_sales[CustomerID]),
+            REMOVEFILTERS(dim_date),
+            dim_date[Date] >= TargetMonthStart,
+            dim_date[Date] < TargetMonthEnd
+        )
+    RETURN
+        IF(
+            NOT ISBLANK(CohortMinDate) && TargetMonthStart <= MaxDataDate,
+            DIVIDE(ActiveInTargetMonth, CohortSize)
+        )

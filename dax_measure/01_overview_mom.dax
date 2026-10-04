@@ -1,0 +1,191 @@
+// ======================================================================
+// Overview page: month-over-month comparison + conditional-formatting colours
+// Project  : Sales Performance Dashboard (Power BI)
+// Table    : _Measures
+// Notes    : PM = previous month (DATEADD -1 MONTH). '<X> MoM %' returns TEXT with an up/down arrow (UNICHAR 11165 / 11167) for KPI cards. 'CF ...' measures return a colour name for conditional formatting.
+// Usage    : Power BI Desktop > Modeling > New measure (paste one measure at a time),
+//            or load the whole file with Tabular Editor / DAX Studio.
+// ======================================================================
+
+// ----------------------------------------------------------------------
+// Measure : Total Orders PM
+// Folder  : 01 Overview\MoM
+// ----------------------------------------------------------------------
+Total Orders PM =
+    CALCULATE([Total Orders], DATEADD(dim_date[Date], -1, MONTH))
+
+// ----------------------------------------------------------------------
+// Measure : Orders MoM %
+// Folder  : 01 Overview\MoM
+// ----------------------------------------------------------------------
+Orders MoM % =
+    VAR _CM = [Total Orders]
+    VAR _PM = CALCULATE(
+        [Total Orders], DATEADD(dim_date[Date], -1, MONTH)
+    )
+    VAR _perc = DIVIDE(_CM - _PM, _PM)
+    VAR _format = SWITCH(
+        TRUE(),
+        _perc > 0, UNICHAR(11165) & " " & FORMAT(_perc, "0.0%"),
+        _perc < 0, UNICHAR(11167) & " " & FORMAT(_perc*-1, "0.0%"),
+        FORMAT(_perc, "0.0%")
+    )
+    RETURN
+    _format
+
+// ----------------------------------------------------------------------
+// Measure : Total Revenue PM
+// Folder  : 01 Overview\MoM
+// ----------------------------------------------------------------------
+Total Revenue PM =
+    CALCULATE([Total Revenue], DATEADD(dim_date[Date], -1, MONTH))
+
+// ----------------------------------------------------------------------
+// Measure : Revenue MoM %
+// Folder  : 01 Overview\MoM
+// ----------------------------------------------------------------------
+Revenue MoM % =
+    VAR _CM = [Total Revenue]
+    VAR _PM = CALCULATE(
+        [Total Revenue], DATEADD(dim_date[Date], -1, MONTH)
+    )
+    VAR _perc = DIVIDE(_CM - _PM, _PM)
+    VAR _format = SWITCH(
+        TRUE(),
+        _perc > 0, UNICHAR(11165) & " " & FORMAT(_perc, "0.0%"),
+        _perc < 0, UNICHAR(11167) & " " & FORMAT(_perc*-1, "0.0%"),
+        FORMAT(_perc, "0.0%")
+    )
+    RETURN
+    _format
+
+// ----------------------------------------------------------------------
+// Measure : Total Profit PM
+// Folder  : 01 Overview\MoM
+// ----------------------------------------------------------------------
+Total Profit PM =
+    CALCULATE([Total Profit], DATEADD(dim_date[Date], -1, MONTH))
+
+// ----------------------------------------------------------------------
+// Measure : Profit MoM %
+// Folder  : 01 Overview\MoM
+// ----------------------------------------------------------------------
+Profit MoM % =
+    VAR _CM = [Total Profit]
+    VAR _PM = CALCULATE(
+        [Total Profit], DATEADD(dim_date[Date], -1, MONTH)
+    )
+    VAR _perc = DIVIDE(_CM - _PM, _PM)
+    VAR _format = SWITCH(
+        TRUE(),
+        _perc > 0, UNICHAR(11165) & " " & FORMAT(_perc, "0.0%"),
+        _perc < 0, UNICHAR(11167) & " " & FORMAT(_perc*-1, "0.0%"),
+        FORMAT(_perc, "0.0%")
+    )
+    RETURN
+    _format
+
+// ----------------------------------------------------------------------
+// Measure : Cancellation Rate PM
+// Folder  : 01 Overview\MoM
+// ----------------------------------------------------------------------
+Cancellation Rate PM =
+    CALCULATE([Cancellation Rate], DATEADD(dim_date[Date], -1, MONTH))
+
+// ----------------------------------------------------------------------
+// Measure : Cancellation Rate MoM %
+// Folder  : 01 Overview\MoM
+// Purpose  : Percentage-point change vs previous month
+// KNOWN ISSUE: description says 'percentage-point change' but the formula returns a relative % change.
+// Suggested fix: either update the description, or use (_CM - _PM) formatted as points.
+// ----------------------------------------------------------------------
+Cancellation Rate MoM % =
+    VAR _CM = [Cancellation Rate]
+    VAR _PM = CALCULATE(
+        [Cancellation Rate], DATEADD(dim_date[Date], -1, MONTH)
+    )
+    VAR _perc = DIVIDE(_CM - _PM, _PM)
+    VAR _format = SWITCH(
+        TRUE(),
+        _perc > 0, UNICHAR(11165) & " " & FORMAT(_perc, "0.0%"),
+        _perc < 0, UNICHAR(11167) & " " & FORMAT(_perc*-1, "0.0%"),
+        FORMAT(_perc, "0.0%")
+    )
+    RETURN
+    _format
+
+// ----------------------------------------------------------------------
+// Measure : Average Rating PM
+// Folder  : 01 Overview\MoM
+// ----------------------------------------------------------------------
+Average Rating PM =
+    CALCULATE([Average Rating], DATEADD(dim_date[Date], -1, MONTH))
+
+// ----------------------------------------------------------------------
+// Measure : Average Rating MoM %
+// Folder  : 01 Overview\MoM
+// KNOWN ISSUE: no arrow is added and a decline is returned as a positive number, so direction is only visible via colour.
+// Suggested fix: use the same UNICHAR(11165) / UNICHAR(11167) pattern as the other MoM measures.
+// ----------------------------------------------------------------------
+Average Rating MoM % =
+    VAR _CM = [Average Rating]
+    VAR _PM = CALCULATE(
+        [Average Rating], DATEADD(dim_date[Date], -1, MONTH)
+    )
+    VAR _perc = DIVIDE(_CM - _PM, _PM)
+    VAR _format = SWITCH(
+        TRUE(),
+        _perc > 0, FORMAT(_perc, "0.0%"),
+        _perc < 0, FORMAT(_perc*-1, "0.0%"),
+        FORMAT(_perc, "0.0%")
+    )
+    RETURN
+    _format
+
+// ----------------------------------------------------------------------
+// Measure : Profit YTD
+// Folder  : 01 Overview
+// Purpose  : Cumulative Profit (YTD), resets each calendar year
+// ----------------------------------------------------------------------
+Profit YTD =
+    TOTALYTD([Total Profit], dim_date[Date])
+
+// ----------------------------------------------------------------------
+// Measure : CF Revenue MoM %
+// Folder  : (no display folder)
+// ----------------------------------------------------------------------
+CF Revenue MoM % =
+    VAR _CM = [Total Revenue]
+    VAR _PM = CALCULATE(
+        [Total Revenue], DATEADD(dim_date[Date], -1, MONTH)
+    )
+    VAR _perc = DIVIDE(_CM - _PM, _PM)
+    VAR _format = SWITCH(
+        TRUE(),
+        _perc > 0, "green",
+        _perc < 0, "red",
+        "navy"
+    )
+    RETURN
+    _format
+
+// ----------------------------------------------------------------------
+// Measure : CF Cancellation Rate MoM %
+// Folder  : (no display folder)
+// KNOWN ISSUE: compares [Total Revenue] instead of [Cancellation Rate], so the colour follows revenue, not cancellations.
+// Suggested fix: replace both [Total Revenue] references with [Cancellation Rate] (keep _perc < 0 -> green, _perc > 0 -> red).
+// ----------------------------------------------------------------------
+CF Cancellation Rate MoM % =
+    VAR _CM = [Total Revenue]
+    VAR _PM = CALCULATE(
+        [Total Revenue], DATEADD(dim_date[Date], -1, MONTH)
+    )
+    VAR _perc = DIVIDE(_CM - _PM, _PM)
+    VAR _format = SWITCH(
+        TRUE(),
+        _perc < 0, "green",
+        _perc > 0, "red",
+        "grey"
+    )
+    RETURN
+    _format
