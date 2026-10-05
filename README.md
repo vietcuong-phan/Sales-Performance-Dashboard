@@ -1,6 +1,6 @@
 # Sales Performance Dashboard
 <br>
-Dashboard Power BI 3 trang (**Overview**, **Product**, **Customer**) phân tích hiệu quả bán hàng của một doanh nghiệp kinh doanh thiết bị điện tử: doanh thu và lợi nhuận, sản phẩm, hành vi khách hàng và tỷ lệ hủy đơn, từ 20.000 đơn hàng.
+Dashboard Power BI 3 trang Overview, Product, Customer phân tích hiệu quả bán hàng của một doanh nghiệp kinh doanh thiết bị điện tử: doanh thu và lợi nhuận, sản phẩm, hành vi khách hàng và tỷ lệ hủy đơn, từ 20.000 đơn hàng.
 
 **Overview**
 
