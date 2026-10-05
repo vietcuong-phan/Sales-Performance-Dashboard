@@ -1,0 +1,19 @@
+# Jupyter
+.ipynb_checkpoints/
+ 
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+ 
+# Power BI / Office temporary files
+.pbi/
+~$*
+*.tmp
+ 
+# OS and editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
