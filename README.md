@@ -74,7 +74,7 @@ Notebook [`eda/01_data_profiling.ipynb`](eda/data_profiling.ipynb) kiểm tra gi
 - Xây mô hình star schema: `fact_sales` ở trung tâm, nối với `dim_customer`, `dim_product`, `dim_date` bằng ba quan hệ nhiều-một, một chiều.
 - Tạo bảng lịch `dim_date` (2022 đến 2025), các cột sắp xếp (`MonthYearSort`, `AgeGroupSort`, `FirstOrderMonthSort`), bảng `Month Index` cho cohort và bảng `Parameter` (field parameter) để người xem đổi chỉ số hiển thị.
 
-![star_schema](./star_schema.jpg)
+_schema.jpg
 
 Chi tiết: [`power_query/M_scripts.md`](power_query/M_scripts.md), [`power_query/dim_date.pq`](power_query/dim_date.pq), [`data_model/model_notes.md`](data_model/model_notes.md).
 
@@ -117,7 +117,7 @@ Tóm tắt theo từng trang. Phân tích đầy đủ, kèm bằng chứng và 
 
 ### 5.1. Trang Overview
 
-![overview_page](screenshots\01_overview_page.jpg)
+_01_overview_page.jpg
 
 | Insight | Recommendation |
 |---|---|
@@ -128,7 +128,7 @@ Tóm tắt theo từng trang. Phân tích đầy đủ, kèm bằng chứng và 
 
 ### 5.2. Trang Product
 
-![product_page](screenshots\02_product_page.jpg)
+_02_product_page.jpg
 
 | Insight | Recommendation |
 |---|---|
@@ -139,7 +139,7 @@ Tóm tắt theo từng trang. Phân tích đầy đủ, kèm bằng chứng và 
 
 ### 5.3. Trang Customer
 
-![customer_page](screenshots/03_customer_page.jpg)
+_03_customer_page.jpg
 
 | Insight | Recommendation |
 |---|---|
