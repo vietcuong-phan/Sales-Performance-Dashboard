@@ -74,7 +74,7 @@ Notebook [`eda/01_data_profiling.ipynb`](eda/data_profiling.ipynb) kiểm tra gi
 - Xây mô hình star schema: `fact_sales` ở trung tâm, nối với `dim_customer`, `dim_product`, `dim_date` bằng ba quan hệ nhiều-một, một chiều.
 - Tạo bảng lịch `dim_date` (2022 đến 2025), các cột sắp xếp (`MonthYearSort`, `AgeGroupSort`, `FirstOrderMonthSort`), bảng `Month Index` cho cohort và bảng `Parameter` (field parameter) để người xem đổi chỉ số hiển thị.
 
-![star_schema](data_model\star_schema.jpg)
+![star_schema](.\star_schema.jpg)
 
 Chi tiết: [`power_query/M_scripts.md`](power_query/M_scripts.md), [`power_query/dim_date.pq`](power_query/dim_date.pq), [`data_model/model_notes.md`](data_model/model_notes.md).
 
