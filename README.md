@@ -74,7 +74,7 @@ Notebook [`eda/01_data_profiling.ipynb`](eda/data_profiling.ipynb) kiểm tra gi
 - Xây mô hình star schema: `fact_sales` ở trung tâm, nối với `dim_customer`, `dim_product`, `dim_date` bằng ba quan hệ nhiều-một, một chiều.
 - Tạo bảng lịch `dim_date` (2022 đến 2025), các cột sắp xếp (`MonthYearSort`, `AgeGroupSort`, `FirstOrderMonthSort`), bảng `Month Index` cho cohort và bảng `Parameter` (field parameter) để người xem đổi chỉ số hiển thị.
 
-_schema.jpg
+<img width="861" height="502" alt="star_schema" src="https://github.com/user-attachments/assets/5768284a-f253-41f9-ac99-c26d6efcd85c" />
 
 Chi tiết: [`power_query/M_scripts.md`](power_query/M_scripts.md), [`power_query/dim_date.pq`](power_query/dim_date.pq), [`data_model/model_notes.md`](data_model/model_notes.md).
 
@@ -117,7 +117,7 @@ Tóm tắt theo từng trang. Phân tích đầy đủ, kèm bằng chứng và 
 
 ### 5.1. Trang Overview
 
-_01_overview_page.jpg
+<img width="1162" height="658" alt="01_overview_page" src="https://github.com/user-attachments/assets/239afd79-e3d1-4198-a650-d2084523e522" />
 
 | Insight | Recommendation |
 |---|---|
@@ -128,7 +128,7 @@ _01_overview_page.jpg
 
 ### 5.2. Trang Product
 
-_02_product_page.jpg
+<img width="1162" height="663" alt="02_product_page" src="https://github.com/user-attachments/assets/9fe93269-92d1-4ea4-bb2a-61a29b3428a1" />
 
 | Insight | Recommendation |
 |---|---|
@@ -139,7 +139,7 @@ _02_product_page.jpg
 
 ### 5.3. Trang Customer
 
-_03_customer_page.jpg
+<img width="1165" height="661" alt="03_customer_page" src="https://github.com/user-attachments/assets/d1cda4cb-169f-4e14-8937-47f7069df121" />
 
 | Insight | Recommendation |
 |---|---|
